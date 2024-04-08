@@ -1,5 +1,5 @@
 {
-  "name": "my-rag-chatbot",
+  "name": "my-rag-chatbot-with-speak-and-voice-answer",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
