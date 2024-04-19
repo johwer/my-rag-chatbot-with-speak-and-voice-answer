@@ -1,4 +1,3 @@
-//import express, { Express, Request, Application } from 'express';
 import {
   Request,
   Response,
@@ -12,13 +11,7 @@ import {
   PredictionServiceClient,
   protos,
 } from "@google-cloud/aiplatform";
-//import { PredictionServiceClient, helpers } from aiplatform;
 import configJson from "./config.json";
-import cors from "cors";
-//import protoLoader from "@grpc/proto-loader";
-//import { google } from "googleapis"; // Import the googleapis module
-
-//const { PredictionServiceClient } = aiplatform.v1;
 
 // TypeScript type for the config to better handle property accessing
 interface Config {
@@ -37,7 +30,6 @@ interface Config {
   };
   port: number;
 }
-
 interface IPredictRequest {
   /** PredictRequest endpoint */
   endpoint?: string | null;
@@ -48,39 +40,6 @@ interface IPredictRequest {
   /** PredictRequest parameters */
   parameters?: protos.google.protobuf.IValue | null;
 }
-
-// /** Properties of a Value. */
-// interface IValue {
-//   /** Value nullValue */
-//   nullValue?:
-//     | protos.google.protobuf.NullValue
-//     | keyof typeof protos.google.protobuf.NullValue
-//     | null;
-
-//   /** Value numberValue */
-//   numberValue?: number | null;
-
-//   /** Value stringValue */
-//   stringValue?: string | null;
-
-//   /** Value boolValue */
-//   boolValue?: boolean | null;
-
-//   /** Value structValue */
-//   structValue?: protos.google.protobuf.IStruct | null;
-
-//   /** Value listValue */
-//   listValue?: protos.google.protobuf.IListValue | null;
-// }
-
-// type predtionsType = Promise<
-//   [
-//     protos.google.cloud.aiplatform.v1.IPredictResponse,
-//     protos.google.cloud.aiplatform.v1.IPredictRequest | undefined,
-//     {} | undefined
-//   ]
-// >;
-
 interface IPredictResponse {
   /** PredictResponse predictions */
   predictions?: protos.google.protobuf.IValue[] | null;
@@ -100,37 +59,6 @@ interface IPredictResponse {
   /** PredictResponse metadata */
   metadata?: protos.google.protobuf.IValue | null;
 }
-
-// Ensure the imported config matches the Config interface
-const config: Config = configJson as Config;
-
-const mongoUri: string = config.mongoDB.mongoUri;
-const client: MongoClient = new MongoClient(mongoUri);
-
-const app: Application = express() as Express;
-const dbName: string = config.mongoDB.dbName;
-const collectionName: string = config.mongoDB.collectionName;
-
-const clientOptions = {
-  apiEndpoint: config.googleCloud.apiEndpoint,
-};
-
-const project: string = config.googleCloud.project;
-const location: string = config.googleCloud.location;
-const publisher: string = config.googleCloud.publisher;
-const model: string = config.googleCloud.model;
-
-const predictionServiceClient = new PredictionServiceClient(clientOptions);
-
-let history: Array<{ author: string; content: string }> = [];
-let lastRag: boolean = false;
-
-// /** Properties of a ListValue. */
-// interface IListValue {
-//   /** ListValue values */
-//   values?: protos.google.protobuf.IValue[] | null;
-// }
-
 interface Value {
   nullValue?:
     | protos.google.protobuf.NullValue
@@ -162,11 +90,29 @@ interface Value {
     | "listValue";
 }
 
-/** Properties of a Struct. */
-// interface IStruct {
-//   /** Struct fields */
-//   fields?: { [k: string]: protos.google.protobuf.IValue } | null;
-// }
+// Ensure the imported config matches the Config interface
+const config: Config = configJson as Config;
+
+const mongoUri: string = config.mongoDB.mongoUri;
+const client: MongoClient = new MongoClient(mongoUri);
+
+const app: Application = express() as Express;
+const dbName: string = config.mongoDB.dbName;
+const collectionName: string = config.mongoDB.collectionName;
+
+const clientOptions = {
+  apiEndpoint: config.googleCloud.apiEndpoint,
+};
+
+const project: string = config.googleCloud.project;
+const location: string = config.googleCloud.location;
+const publisher: string = config.googleCloud.publisher;
+const model: string = config.googleCloud.model;
+
+const predictionServiceClient = new PredictionServiceClient(clientOptions);
+
+let history: Array<{ author: string; content: string }> = [];
+let lastRag: boolean = false;
 
 function extractFloatsFromJson(
   jsonData: IPredictResponse["predictions"]
@@ -221,8 +167,7 @@ async function getEmbeddings(text: string): Promise<number[]> {
   }
 }
 
-app.use(express.json()); // Replace "path/to/IPredictRequest" with the actual path to the IPredictRequest module
-app.use(cors({ origin: true }));
+app.use(express.json());
 
 app.get("/", (req: Request, res: Response) => {
   res.send("RAG Chatbot Backend is running!");
@@ -298,12 +243,9 @@ app.post("/chat", async (req: Request, res: Response) => {
     });
     const endpoint = `projects/${project}/locations/${location}/publishers/${publisher}/models/${model}`;
     const request = { endpoint, instances, parameters };
-
-    // const [response] = await predictionServiceClient.predict(request);
     const [{ predictions }] = await predictionServiceClient.predict(
       request as IPredictRequest
     );
-    //const predictions = response?.predictions;
 
     if (predictions && predictions.length > 0) {
       const botResponseObj = predictions[0];
