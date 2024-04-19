@@ -118,7 +118,8 @@ Navigate to `http://localhost:3000` to view the application.
 Run the backend server:
 
 ```bash
-node server.js
+npm run build
+npm run start
 ```
 
 The server will start on the default port 5050, or a port specified by the `config.js` file.
@@ -133,4 +134,4 @@ This project is open-sourced under the MIT License.
 
 ## Credit
 
-Credit to Emil Nildersen at MongoDB that start it.
+Credit to Emil Nildersen at MongoDB that start it. Johan Wergelius rewrote it to typescript and add features.
