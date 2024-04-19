@@ -37,18 +37,20 @@ Open a terminal.
 Clone the repository and install the dependencies:
 
 ```bash
-git clone https://github.com/voxic/GCP_RAG_Chatbot.git
+git clone https://github.com/johwer/my-rag-chatbot-with-speak-and-voice-answer.git
 cd GCP_RAG_Chatbot/backend
 npm install
 ```
 
 Configure the `Backend`. Edit the file `backend/config.json`
-And add the `URI` for your MongoDB Cluster and your `GCP Project`.
+And add the `URI` on mongoUri for your MongoDB Cluster found on Connect to Cluster at the website.
+Also add the `projectID` on project which is the project id found your `GCP Project`.
 
 Run the backend
 
 ```bash
-npm start
+npm run build
+npm run start
 ```
 
 ## 4. Generate embeddings for your content
