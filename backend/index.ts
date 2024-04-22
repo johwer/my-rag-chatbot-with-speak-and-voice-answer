@@ -6,89 +6,10 @@ import {
 } from "express-serve-static-core";
 import express from "express";
 import { MongoClient } from "mongodb"; // Import MongoDB client
-import {
-  helpers,
-  PredictionServiceClient,
-  protos,
-} from "@google-cloud/aiplatform";
+import { helpers, PredictionServiceClient } from "@google-cloud/aiplatform";
 import configJson from "./config.json";
-
-// TypeScript type for the config to better handle property accessing
-interface Config {
-  mongoDB: {
-    mongoUri: string;
-    dbName: string;
-    collectionName: string;
-  };
-  googleCloud: {
-    apiEndpoint: string;
-    project: string;
-    location: string;
-    publisher: string;
-    model: string;
-    embeddingModel: string;
-  };
-  port: number;
-}
-interface IPredictRequest {
-  /** PredictRequest endpoint */
-  endpoint?: string | null;
-
-  /** PredictRequest instances */
-  instances?: protos.google.protobuf.IValue[] | null;
-
-  /** PredictRequest parameters */
-  parameters?: protos.google.protobuf.IValue | null;
-}
-interface IPredictResponse {
-  /** PredictResponse predictions */
-  predictions?: protos.google.protobuf.IValue[] | null;
-
-  /** PredictResponse deployedModelId */
-  deployedModelId?: string | null;
-
-  /** PredictResponse model */
-  model?: string | null;
-
-  /** PredictResponse modelVersionId */
-  modelVersionId?: string | null;
-
-  /** PredictResponse modelDisplayName */
-  modelDisplayName?: string | null;
-
-  /** PredictResponse metadata */
-  metadata?: protos.google.protobuf.IValue | null;
-}
-interface Value {
-  nullValue?:
-    | protos.google.protobuf.NullValue
-    | keyof typeof protos.google.protobuf.NullValue
-    | null;
-
-  /** Value numberValue. */
-  numberValue?: number | null;
-
-  /** Value stringValue. */
-  stringValue?: string | null;
-
-  /** Value boolValue. */
-  boolValue?: boolean | null;
-
-  /** Value structValue. */
-  structValue?: protos.google.protobuf.IStruct | null;
-
-  /** Value listValue. */
-  listValue?: protos.google.protobuf.IListValue | null;
-
-  /** Value kind. */
-  kind?:
-    | "nullValue"
-    | "numberValue"
-    | "stringValue"
-    | "boolValue"
-    | "structValue"
-    | "listValue";
-}
+import { Config, IPredictRequest, IPredictResponse, Value } from "./types";
+import cors from "cors";
 
 // Ensure the imported config matches the Config interface
 const config: Config = configJson as Config;
@@ -168,6 +89,7 @@ async function getEmbeddings(text: string): Promise<number[]> {
 }
 
 app.use(express.json());
+app.use(cors());
 
 app.get("/", (req: Request, res: Response) => {
   res.send("RAG Chatbot Backend is running!");
